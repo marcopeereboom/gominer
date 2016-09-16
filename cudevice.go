@@ -286,7 +286,7 @@ func (d *Device) runDevice() error {
 		//if numResults != 0 {
 		//	cu.MemcpyDtoH(nonceResultsHResOffset, nonceResultsDResOffset, 4*int64(numResults))
 		//}
-		cu.MemcpyDtoH(nonceResultsH, nonceResultsD, d.cuInSize)
+		cu.MemcpyDtoH(nonceResultsH, nonceResultsD, d.cuInSize*4)
 		numResults := nonceResultsHSlice[0]
 
 		for i, result := range nonceResultsHSlice[1 : 1+numResults] {
