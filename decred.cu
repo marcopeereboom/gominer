@@ -22,7 +22,8 @@ extern "C" {
 #define TPB 640
 
 /* max count of found nonces in one call (like sgminer) */
-#define maxResults 4
+/* modified from ccminer's value of 4 as ours does not include the first buffer item for the number of results */
+#define maxResults 3
 
 /* hash by cpu with blake 256 */
 extern "C" void decred_hash(void *output, const void *input)
@@ -170,9 +171,10 @@ __global__ void decred_gpu_hash_nonce(const uint32_t threads, const uint32_t sta
 		pxorx1GS2( 0, 4, 8, 12, 1, 5, 9, 13); pxorGS2(   2, 6, 10, 14, 3, 7, 11, 15); pxorGS2(   0, 5, 10, 15, 1, 6, 11, 12); pxorGS(    2, 7, 8, 13);
 
 		if ((c_h[1]^v[15]) == v[7]) {
-		        uint32_t pos = atomicInc(&resNonce[0], UINT32_MAX)+1;
-			resNonce[pos] = nonce;
-			return;
+			auto old_num_results = atomicInc(&resNonce[0], UINT32_MAX);
+			if (old_num_results < maxResults) {
+				resNonce[old_num_results + 1] = nonce;
+			}
 		}
 	}
 }
