@@ -216,8 +216,8 @@ func (d *Device) runDevice() error {
 	minrLog.Infof("Started GPU #%d: %s", d.index, d.deviceName)
 	nonceResultsH := cu.MemAllocHost(d.cuInSize * 4)
 	nonceResultsD := cu.MemAlloc(d.cuInSize * 4)
-	nonceResultsHResOffset := unsafe.Pointer(uintptr(nonceResultH) + 4)
-	nonceResultsDResOffset := cu.DevicePtr(uintptr(nonceResultD) + 4)
+	nonceResultsHResOffset := unsafe.Pointer(uintptr(nonceResultsH) + 4)
+	nonceResultsDResOffset := cu.DevicePtr(uintptr(nonceResultsD) + 4)
 	defer cu.MemFreeHost(nonceResultsH)
 	defer nonceResultsD.Free()
 
@@ -287,7 +287,7 @@ func (d *Device) runDevice() error {
 		cu.MemcpyDtoH(nonceResultsH, nonceResultsD, 4)
 		numResults := nonceResultsHSlice[0]
 		if numResults != 0 {
-			cu.MemcpyDtoH(nonceResultsHResOffset, nonceResultsDResOffset, 4*numResults)
+			cu.MemcpyDtoH(nonceResultsHResOffset, nonceResultsDResOffset, 4*int64(numResults))
 		}
 
 		for i, result := range nonceResultsHSlice[1 : 1+numResults] {
