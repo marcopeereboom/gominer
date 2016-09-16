@@ -283,11 +283,11 @@ func (d *Device) runDevice() error {
 		// the memory that is needed instead of the entire array.  When
 		// there are no results the second copy can be skipped.
 		//cu.MemcpyDtoH(nonceResultsH, nonceResultsD, 4)
-		numResults := nonceResultsHSlice[0]
 		//if numResults != 0 {
 		//	cu.MemcpyDtoH(nonceResultsHResOffset, nonceResultsDResOffset, 4*int64(numResults))
 		//}
 		cu.MemcpyDtoH(nonceResultsH, nonceResultsD, d.cuInSize)
+		numResults := nonceResultsHSlice[0]
 
 		for i, result := range nonceResultsHSlice[1 : 1+numResults] {
 			// lol seelog
