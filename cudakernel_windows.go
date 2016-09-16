@@ -17,7 +17,7 @@ var (
 )
 
 func cudaPrecomputeTable(input *[192]byte) {
-	syscall.Syscall(precomputeTableProcAddr, 1, uintptr(unsafe.Pointer(input)))
+	syscall.Syscall(precomputeTableProcAddr, 1, uintptr(unsafe.Pointer(input)), 0, 0)
 }
 
 func cudaInvokeKernel(gridx, blockx, threads uint32, startNonce uint32, nonceResults cu.DevicePtr, targetHigh uint32) {
