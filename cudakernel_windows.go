@@ -3,13 +3,15 @@
 package main
 
 import (
-	"github.com/mumax/3/cuda/cu"
 	"syscall"
 	"unsafe"
+
+	"github.com/mumax/3/cuda/cu"
 )
 
 var (
-	kernelDll           = syscall.MustLoadDLL("decred.dll")
+	//kernelDll           = syscall.MustLoadDLL("decred.dll")
+	kernelDll           = syscall.MustLoadDLL("obj/decred.dll")
 	precomputeTableProc = kernelDll.MustFindProc("decred_cpu_setBlock_52")
 	kernelProc          = kernelDll.MustFindProc("decred_hash_nonce")
 )
