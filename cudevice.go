@@ -21,6 +21,17 @@ const (
 	// From ccminer
 	threadsPerBlock = 640
 	blockx          = threadsPerBlock
+
+	// ccminer is not memory safe because their kernel does not bounds check
+	// the number of results written to the buffer.  We have modified their
+	// kernel to perform this check, while using their max number of results
+	// (which their kernel just ignores for whatever reason).
+	//
+	// To ensure memory safety this MUST match the maxResults define in
+	// decred.cu.
+	maxNonceResults         = 3
+	nonceResultsBufferSize  = (1 + maxNonceResults) * unsafe.Sizeof(uint32(0))
+	nonceResultsBufferItems = 1 + maxNonceResults
 )
 
 func deviceInfoNVIDIA(index int) (uint32, uint32) {
@@ -130,8 +141,6 @@ func NewCuDevice(index int, order int, deviceID cu.Device,
 		temperature: 0,
 	}
 
-	d.cuInSize = 21
-
 	fanPercent, temperature := deviceInfoNVIDIA(d.index)
 	// Newer cards will idle with the fan off so just check if we got
 	// a good temperature reading
@@ -169,15 +178,15 @@ func (d *Device) runCuDevice() error {
 	// at compile time.
 
 	minrLog.Infof("Started GPU #%d: %s", d.index, d.deviceName)
-	nonceResultsH := cu.MemAllocHost(d.cuInSize * 4)
-	nonceResultsD := cu.MemAlloc(d.cuInSize * 4)
+	nonceResultsH := cu.MemAllocHost(int64(nonceResultsBufferSize))
+	nonceResultsD := cu.MemAlloc(int64(nonceResultsBufferSize))
 	defer cu.MemFreeHost(nonceResultsH)
 	defer nonceResultsD.Free()
 
 	nonceResultsHSliceHeader := reflect.SliceHeader{
 		Data: uintptr(nonceResultsH),
-		Len:  int(d.cuInSize),
-		Cap:  int(d.cuInSize),
+		Len:  int(nonceResultsBufferItems),
+		Cap:  int(nonceResultsBufferItems),
 	}
 	nonceResultsHSlice := *(*[]uint32)(unsafe.Pointer(&nonceResultsHSliceHeader))
 
@@ -217,7 +226,7 @@ func (d *Device) runCuDevice() error {
 
 		// Only zero the first item which contains the number of results
 		nonceResultsHSlice[0] = 0
-		cu.MemcpyHtoD(nonceResultsD, nonceResultsH, 4)
+		cu.MemcpyHtoD(nonceResultsD, nonceResultsH, int64(unsafe.Sizeof(uint32(0))))
 
 		// Execute the kernel and follow its execution time.
 		currentTime := time.Now()
@@ -233,16 +242,11 @@ func (d *Device) runCuDevice() error {
 
 		cudaInvokeKernel(gridx, blockx, throughput, startNonce, nonceResultsD, targetHigh)
 
-		// Copy just the number of results here.  The actual results are
-		// copied after this is known.  ccminer does this to only copy
-		// the memory that is needed instead of the entire array.  When
-		// there are no results the second copy can be skipped.
-		//cu.MemcpyDtoH(nonceResultsH, nonceResultsD, 4)
-		//if numResults != 0 {
-		//	cu.MemcpyDtoH(nonceResultsHResOffset, nonceResultsDResOffset, 4*int64(numResults))
-		//}
-		cu.MemcpyDtoH(nonceResultsH, nonceResultsD, d.cuInSize*4)
+		cu.MemcpyDtoH(nonceResultsH, nonceResultsD, int64(nonceResultsBufferSize))
 		numResults := nonceResultsHSlice[0]
+		if numResults > maxNonceResults {
+			numResults = maxNonceResults
+		}
 
 		for i, result := range nonceResultsHSlice[1 : 1+numResults] {
 			// lol seelog

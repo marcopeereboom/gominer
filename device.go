@@ -88,10 +88,8 @@ type Device struct {
 	kind          string
 
 	// Items for CUDA device
-	cuDeviceID cu.Device
-	cuContext  cu.Context
-	//cuInput        cu.DevicePtr
-	cuInSize       int64
+	cuDeviceID     cu.Device
+	cuContext      cu.Context
 	cuOutputBuffer []float64
 
 	workSize uint32
