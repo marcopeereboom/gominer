@@ -387,16 +387,16 @@ func CLGetProgramBuildInfo(program CL_program,
 				*param_value = C.GoStringN(&value[0], C.int(c_param_value_size_ret-1))
 
 			case CL_PROGRAM_BINARY_TYPE:
-				var value C.cl_program_binary_type
+				//var value C.cl_program_binary_type
 
-				c_errcode_ret = C.clGetProgramBuildInfo(program.cl_program,
-					device.cl_device_id,
-					C.cl_program_build_info(param_name),
-					C.size_t(param_value_size),
-					unsafe.Pointer(&value),
-					&c_param_value_size_ret)
+				//c_errcode_ret = C.clGetProgramBuildInfo(program.cl_program,
+				//	device.cl_device_id,
+				//	C.cl_program_build_info(param_name),
+				//	C.size_t(param_value_size),
+				//	unsafe.Pointer(&value),
+				//	&c_param_value_size_ret)
 
-				*param_value = CL_program_binary_type(value)
+				//*param_value = CL_program_binary_type(value)
 
 			case CL_PROGRAM_BUILD_GLOBAL_VARIABLE_TOTAL_SIZE:
 				var value C.size_t

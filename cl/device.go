@@ -287,23 +287,23 @@ func CLGetDeviceInfo(device CL_device_id,
 
 			case CL_DEVICE_PARTITION_PROPERTIES,
 				CL_DEVICE_PARTITION_TYPE:
-				var param C.cl_device_partition_property
-				length := int(C.size_t(param_value_size) / C.size_t(unsafe.Sizeof(param)))
+				//var param C.cl_device_partition_property
+				//length := int(C.size_t(param_value_size) / C.size_t(unsafe.Sizeof(param)))
 
-				value1 := make([]C.cl_device_partition_property, length)
-				value2 := make([]CL_device_partition_property, length)
+				//value1 := make([]C.cl_device_partition_property, length)
+				//value2 := make([]CL_device_partition_property, length)
 
-				c_errcode_ret = C.clGetDeviceInfo(device.cl_device_id,
-					C.cl_device_info(param_name),
-					C.size_t(param_value_size),
-					unsafe.Pointer(&value1[0]),
-					&c_param_value_size_ret)
+				//c_errcode_ret = C.clGetDeviceInfo(device.cl_device_id,
+				//	C.cl_device_info(param_name),
+				//	C.size_t(param_value_size),
+				//	unsafe.Pointer(&value1[0]),
+				//	&c_param_value_size_ret)
 
-				for i := 0; i < length; i++ {
-					value2[i] = CL_device_partition_property(value1[i])
-				}
+				//for i := 0; i < length; i++ {
+				//	value2[i] = CL_device_partition_property(value1[i])
+				//}
 
-				*param_value = value2
+				//*param_value = value2
 
 			case CL_DEVICE_MAX_WORK_ITEM_SIZES:
 				var param C.size_t
@@ -325,14 +325,14 @@ func CLGetDeviceInfo(device CL_device_id,
 				*param_value = value2
 
 			case CL_DEVICE_PARTITION_AFFINITY_DOMAIN:
-				var value C.cl_device_affinity_domain
-				c_errcode_ret = C.clGetDeviceInfo(device.cl_device_id,
-					C.cl_device_info(param_name),
-					C.size_t(param_value_size),
-					unsafe.Pointer(&value),
-					&c_param_value_size_ret)
+				//var value C.cl_device_affinity_domain
+				//c_errcode_ret = C.clGetDeviceInfo(device.cl_device_id,
+				//	C.cl_device_info(param_name),
+				//	C.size_t(param_value_size),
+				//	unsafe.Pointer(&value),
+				//	&c_param_value_size_ret)
 
-				*param_value = CL_device_affinity_domain(value)
+				//*param_value = CL_device_affinity_domain(value)
 
 			case CL_DEVICE_SVM_CAPABILITIES:
 				var value C.cl_bitfield //C.cl_device_svm_capabilities //use cl_bitfield to make darwin pass
