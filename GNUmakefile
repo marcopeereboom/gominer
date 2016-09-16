@@ -8,16 +8,10 @@ AR ?= ar
 obj:
 	mkdir obj
 
-obj/blake.o: obj
-	$(CC) -c sph/blake.c -o obj/blake.o
+obj/decred.dll: obj sph/blake.c decred.cu
+	$(NVCC) --shared --compiler-options=-GS-,-MD -I. -Isph decred.cu sph/blake.c -o obj/decred.dll
 
-obj/decred.o: obj
-	$(NVCC) -I. -c decred.cu -o obj/decred.o
-
-obj/cuda.a: obj/blake.o obj/decred.o
-	$(AR) rvs obj/cuda.a obj/blake.o obj/decred.o
-
-build: obj/cuda.a
+build: obj/decred.dll
 	go build
 
 install: obj/cuda.a
