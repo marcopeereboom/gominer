@@ -15,12 +15,6 @@ import (
 	"unsafe"
 )
 
-var (
-	kernelDll           = syscall.MustLoadDLL("decred.dll")
-	precomputeTableProc = kernelDll.MustFindProc("decred_cpu_setBlock_52")
-	kernelProc          = kernelDll.MustFindProc("decred_hash_nonce")
-)
-
 func cudaPrecomputeTable(input *[192]byte) {
 	if input == nil {
 		panic("input is nil")
