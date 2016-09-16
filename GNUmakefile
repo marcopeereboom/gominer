@@ -2,25 +2,33 @@ CC ?= gcc
 CXX ?= g++
 NVCC ?= nvcc
 AR ?= ar
+ARCH:=$(shell uname -s)
 
 .DEFAULT_GOAL := build
 
 obj:
 	mkdir obj
 
-obj/blake.o: obj
-	$(CC) -c sph/blake.c -o obj/blake.o
+ifeq ($(ARCH),Windows)
+obj/decred.a: obj sph/blake.c decred.cu
+	$(NVCC) --lib --optimize=3 -I. decred.cu sph/blake.c -o obj/decred.a
+else
+obj/decred.dll: obj sph/blake.c decred.cu
+	$(NVCC) --shared --optimize=3 --compiler-options=-GS-,-MD -I. -Isph decred.cu sph/blake.c -o obj/decred.dll
+endif
 
-obj/decred.o: obj
-	$(NVCC) -I. -c decred.cu -o obj/decred.o
-
-obj/cuda.a: obj/blake.o obj/decred.o
-	$(AR) rvs obj/cuda.a obj/blake.o obj/decred.o
-
-build: obj/cuda.a
+ifeq ($(ARCH),Windows)
+build: obj/decred.a
+else
+build: obj/decred.dll
+endif
 	go build -tags 'cuda'
 
-install: obj/cuda.a
+ifeq ($(ARCH),Windows)
+install: obj/decred.dll
+else
+install: obj/decred.a
+endif
 	go install
 
 clean:
