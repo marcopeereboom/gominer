@@ -5,7 +5,6 @@
 package main
 
 /*
-#cgo LDFLAGS: -L/opt/cuda/lib64 -L/opt/cuda/lib -lcuda -lcudart -lstdc++ obj/cuda.a
 #include <stdint.h>
 void decred_hash_nonce(uint32_t grid, uint32_t block, uint32_t threads, uint32_t startNonce, uint32_t *resNonce, uint32_t targetHigh);
 void decred_cpu_setBlock_52(const uint32_t *input);
@@ -23,7 +22,6 @@ import (
 
 	"github.com/mumax/3/cuda/cu"
 
-	"github.com/decred/gominer/nvml"
 	"github.com/decred/gominer/util"
 	"github.com/decred/gominer/work"
 )
@@ -106,32 +104,32 @@ func deviceInfo(index int) (uint32, uint32) {
 	fanPercent := uint32(0)
 	temperature := uint32(0)
 
-	err := nvml.Init()
-	if err != nil {
-		minrLog.Errorf("NVML Init error: %v", err)
-		return fanPercent, temperature
-	}
-
-	dh, err := nvml.DeviceGetHandleByIndex(index)
-	if err != nil {
-		minrLog.Errorf("NVML DeviceGetHandleByIndex error: %v", err)
-		return fanPercent, temperature
-	}
-
-	nvmlFanSpeed, err := nvml.DeviceFanSpeed(dh)
-	if err != nil {
-		minrLog.Infof("NVML DeviceFanSpeed error: %v", err)
-	} else {
-		fanPercent = uint32(nvmlFanSpeed)
-	}
-
-	nvmlTemp, err := nvml.DeviceTemperature(dh)
-	if err != nil {
-		minrLog.Infof("NVML DeviceTemperature error: %v", err)
-	} else {
-		temperature = uint32(nvmlTemp)
-	}
-
+//	err := nvml.Init()
+//	if err != nil {
+//		minrLog.Errorf("NVML Init error: %v", err)
+//		return fanPercent, temperature
+//	}
+//
+//	dh, err := nvml.DeviceGetHandleByIndex(index)
+//	if err != nil {
+//		minrLog.Errorf("NVML DeviceGetHandleByIndex error: %v", err)
+//		return fanPercent, temperature
+//	}
+//
+//	nvmlFanSpeed, err := nvml.DeviceFanSpeed(dh)
+//	if err != nil {
+//		minrLog.Infof("NVML DeviceFanSpeed error: %v", err)
+//	} else {
+//		fanPercent = uint32(nvmlFanSpeed)
+//	}
+//
+//	nvmlTemp, err := nvml.DeviceTemperature(dh)
+//	if err != nil {
+//		minrLog.Infof("NVML DeviceTemperature error: %v", err)
+//	} else {
+//		temperature = uint32(nvmlTemp)
+//	}
+//
 	return fanPercent, temperature
 }
 
