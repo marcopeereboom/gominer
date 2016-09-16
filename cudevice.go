@@ -260,9 +260,8 @@ func (d *Device) runDevice() error {
 		}
 		d.lastBlock[work.TimestampWord] = util.Uint32EndiannessSwap(ts)
 
-		// Only zero the first item which contains the number of results
 		nonceResultsHSlice[0] = 0
-		cu.MemcpyHtoD(nonceResultsD, nonceResultsH, 4)
+		cu.MemcpyHtoD(nonceResultsD, nonceResultsH, d.cuInSize*4)
 
 		// Execute the kernel and follow its execution time.
 		currentTime := time.Now()
@@ -278,17 +277,9 @@ func (d *Device) runDevice() error {
 
 		cudaInvokeKernel(gridx, blockx, throughput, startNonce, nonceResultsD, targetHigh)
 
-		// Copy just the number of results here.  The actual results are
-		// copied after this is known.  ccminer does this to only copy
-		// the memory that is needed instead of the entire array.  When
-		// there are no results the second copy can be skipped.
-		//cu.MemcpyDtoH(nonceResultsH, nonceResultsD, 4)
-		//if numResults != 0 {
-		//	cu.MemcpyDtoH(nonceResultsHResOffset, nonceResultsDResOffset, 4*int64(numResults))
-		//}
 		cu.MemcpyDtoH(nonceResultsH, nonceResultsD, d.cuInSize)
-		numResults := nonceResultsHSlice[0]
 
+		numResults := nonceResultsHSlice[0]
 		for i, result := range nonceResultsHSlice[1 : 1+numResults] {
 			// lol seelog
 			i := i
