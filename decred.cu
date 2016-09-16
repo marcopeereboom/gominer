@@ -187,6 +187,14 @@ void decred_hash_nonce(uint32_t grid, uint32_t block, uint32_t threads, uint32_t
 
 extern "C" {
 __host__
+void moo(void)
+{
+	printf("moo\n");
+}
+}
+
+extern "C" {
+__host__
 void decred_cpu_setBlock_52(const uint32_t *input)
 {
 	/*
